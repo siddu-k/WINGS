@@ -638,12 +638,27 @@ nav {
 
 .footer-content {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 25px;
-    text-align: center;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 40px;
+    text-align: left;
     width: 100%;
     max-width: 1200px;
+}
+
+.footer-left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.footer-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
 }
 
 .footer-logo {
@@ -667,7 +682,7 @@ nav {
     display: flex;
     gap: 30px;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: flex-end;
     list-style: none;
     padding: 0;
     margin: 0;
@@ -733,6 +748,92 @@ nav {
     box-shadow: 0 5px 15px rgba(11, 97, 170, 0.6);
 }
 
+/* --- INSTAGRAM FEED --- */
+.insta-section {
+    width: 100%;
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.insta-title {
+    font-family: var(--font-heading);
+    color: var(--gold);
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.8);
+}
+
+.insta-subtitle {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+    margin-top: -15px;
+}
+
+.insta-container {
+    display: flex;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 20px;
+    width: 100%;
+}
+
+.insta-link-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 15px 25px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: white;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.insta-link-card:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--gold);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.insta-icon {
+    font-size: 2rem;
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: flex;
+    align-items: center;
+}
+
+.insta-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.insta-text span:first-child {
+    font-family: var(--font-ui);
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+    color: #fff;
+}
+
+.insta-text .view-profile {
+    font-size: 0.75rem;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-top: 2px;
+}
+
 .footer-contact {
     margin-top: 10px;
     font-size: 1rem;
@@ -762,9 +863,29 @@ nav {
     font-size: 0.85rem;
     color: rgba(255, 255, 255, 0.3);
     letter-spacing: 1px;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-    padding-top: 25px;
-    width: 80%;
+    border-top: none;
+    padding-top: 10px;
+    width: 100%;
+    text-align: right;
+}
+
+.made-by {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.3);
+    margin-top: 5px;
+    letter-spacing: 1px;
+    width: 100%;
+    text-align: right;
+}
+
+.made-by a {
+    color: rgba(255, 255, 255, 0.5);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.made-by a:hover {
+    color: var(--gold);
 }
 
 .events-section {
@@ -1053,5 +1174,42 @@ nav {
     @keyframes moveLogoMobile {
         0% { top: 50%; left: 50%; transform: translate(-50%, -50%) scale(3.5); }
         100% { top: 15px; left: 20px; transform: translate(0, 0) scale(0.56); opacity: 0; }
+    }
+
+    /* Footer Mobile Adjustments */
+    .footer-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .footer-left, .footer-right {
+        align-items: center;
+        width: 100%;
+    }
+    .footer-right {
+        align-items: center;
+    }
+    .insta-section {
+        align-items: center;
+        margin-bottom: 40px;
+    }
+    .insta-container {
+        justify-content: center;
+    }
+    .footer-links {
+        justify-content: center;
+    }
+    .copyright {
+        text-align: center;
+    }
+    .made-by {
+        text-align: center;
+    }
+    .footer-logo {
+        font-size: 1.5rem;
+    }
+
+    .copyright {
+        width: 100%;
     }
 }

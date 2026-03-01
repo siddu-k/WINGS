@@ -46,6 +46,11 @@
             border-color: var(--gold);
             background: rgba(255,255,255,0.1);
         }
+        /* Override nav-logo animation from style.css since this page has no loader */
+        .nav-logo {
+            opacity: 1 !important;
+            animation: none !important;
+        }
         @media (max-width: 768px) {
             .register-container {
                 padding: 100px 20px 40px;
@@ -61,7 +66,7 @@
     <nav class="glass-nav">
         <div class="logo">
             <a href="index.html">
-                <img src="PYDAH FLAG  (1).png" alt="Pydah Logo" style="height: 80px;">
+                <img src="PYDAH FLAG  (1).png" alt="Pydah Logo" style="height: 80px;" class="nav-logo">
             </a>
         </div>
         <ul class="nav-links nav-links-compact">
@@ -93,18 +98,65 @@
                 </form>
             </div>
         </div>
+
+        <div class="glass-card form-card" style="margin-top: 30px;">
+            <div class="card-content">
+                <h4 style="margin-bottom: 20px;">Student Coordinators</h4>
+                <div style="text-align: left; width: 100%; display: flex; flex-direction: column; gap: 20px;">
+                    <div>
+                        <h5 class="team-subtitle" style="color: var(--gold); margin-bottom: 8px;">Engineering</h5>
+                        <ul class="team-list" style="color: rgba(255,255,255,0.9);">
+                            <li>Ch. S.R.B. Chandrika</li>
+                            <li>J. Ganesh — 90592 45680</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h5 class="team-subtitle" style="color: var(--gold); margin-bottom: 8px;">Pharmacy</h5>
+                        <ul class="team-list" style="color: rgba(255,255,255,0.9);">
+                            <li>K. Jyothika</li>
+                            <li>Y. Pooja (Degree) — 96181 72575</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h5 class="team-subtitle" style="color: var(--gold); margin-bottom: 8px;">Others</h5>
+                        <ul class="team-list" style="color: rgba(255,255,255,0.9);">
+                            <li>P. Saiteja (Pharmacy) — 84639 06115</li>
+                            <li>V. Abhay (Diploma)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <footer class="main-footer" style="margin-top: auto;">
         <div class="footer-content">
-            <div class="footer-logo">
-                <span>PYDAH</span> WINGS 2026
+            <div class="footer-left">
+                <div class="insta-section">
+                    <h3 class="insta-title">Pydah Vibes Instagram</h3>
+                    <p class="insta-subtitle">Follow for WINGS updates and posts</p>
+                    <div class="insta-container">
+                        <a href="https://www.instagram.com/pydah_vibes/" target="_blank" class="insta-link-card">
+                            <div class="insta-icon"><i class="fa-brands fa-instagram"></i></div>
+                            <div class="insta-text">
+                                <span>@pydah_vibes</span>
+                                <span class="view-profile">View Profile</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
             </div>
-            <p class="footer-contact">
-                <i class="fa-solid fa-envelope"></i>
-                <a href="mailto:princengg@pydah.edu.in">princengg@pydah.edu.in</a>
-            </p>
-            <p class="copyright">© 2026 Pydah Group of Educational Institutions. All Rights Reserved.</p>
+            <div class="footer-right">
+                <div class="footer-logo">
+                    <span>PYDAH</span> WINGS 2026
+                </div>
+                <p class="footer-contact">
+                    <i class="fa-solid fa-envelope"></i>
+                    <a href="mailto:princengg@pydah.edu.in">princengg@pydah.edu.in</a>
+                </p>
+                <p class="copyright">© 2026 Pydah Group of Educational Institutions. All Rights Reserved.</p>
+                <p class="made-by">Made by <a href="https://www.linkedin.com/in/ksridatta" target="_blank">@sidhardha</a></p>
+            </div>
         </div>
     </footer>
 
