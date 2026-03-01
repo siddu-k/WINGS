@@ -966,9 +966,9 @@ nav {
     .title-with-wings {
         width: 100%;
         justify-content: center;
-        transform: scale(0.55); /* Scale down to fit mobile screen */
-        margin-top: -50px;
-        margin-bottom: -50px;
+        transform: scale(0.35); /* Scale down to fit mobile screen */
+        margin-top: -80px;
+        margin-bottom: -80px;
     }
 
     .tagline-text {
