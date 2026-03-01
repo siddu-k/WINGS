@@ -925,3 +925,109 @@ nav {
         padding: 36px 20px;
     }
 }
+
+/* --- MOBILE RESPONSIVENESS --- */
+@media (max-width: 768px) {
+    /* Navigation */
+    nav {
+        padding: 15px 20px;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(15px);
+    }
+
+    .nav-logo {
+        height: 45px !important; /* Override inline style */
+        width: auto;
+    }
+
+    .nav-links {
+        gap: 15px;
+    }
+
+    .nav-links a {
+        font-size: 0.85rem;
+    }
+
+    /* Hero Section */
+    .hero {
+        margin-top: 100px;
+        margin-bottom: 30px;
+    }
+
+    .pydah {
+        font-size: 2.2rem;
+    }
+
+    .proudly {
+        font-size: 1.4rem;
+    }
+
+    /* Wings & Title - Responsive Scaling */
+    .title-with-wings {
+        width: 100%;
+        justify-content: center;
+        transform: scale(0.55); /* Scale down to fit mobile screen */
+        margin-top: -50px;
+        margin-bottom: -50px;
+    }
+
+    .tagline-text {
+        font-size: 0.75rem;
+        margin-top: -10px;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+        padding: 0 10px;
+        line-height: 1.4;
+        text-align: center;
+    }
+
+    /* Info Banner */
+    .info-banner {
+        flex-direction: column;
+        width: 90%;
+        gap: 15px;
+    }
+
+    .info-box {
+        width: 100%;
+        padding: 20px;
+    }
+
+    .ticket-amount {
+        font-size: 3rem;
+    }
+
+    /* Events Section */
+    .events-section {
+        width: 95%;
+    }
+
+    .event-card {
+        width: 100%;
+        max-width: 340px;
+    }
+
+    .events-links {
+        flex-direction: column;
+        width: 100%;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .events-links .btn {
+        width: 100%;
+        max-width: 300px;
+        text-align: center;
+    }
+
+    /* Loading Animation Mobile Override */
+    .intro-logo {
+        animation-name: moveLogoMobile;
+    }
+    
+    @keyframes moveLogoMobile {
+        0% { top: 50%; left: 50%; transform: translate(-50%, -50%) scale(3.5); }
+        100% { top: 15px; left: 20px; transform: translate(0, 0) scale(0.56); opacity: 0; }
+    }
+}
