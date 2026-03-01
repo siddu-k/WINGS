@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - WINGS 2026</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=Inter:wght@400..700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Page specific overrides to ensure full height layout */
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .register-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 20px 60px;
+            width: 100%;
+        }
+        .form-card {
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05);
+            color: white;
+            font-family: var(--font-ui);
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .form-input:focus {
+            border-color: var(--gold);
+            background: rgba(255,255,255,0.1);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="glass-nav">
+        <div class="logo">
+            <a href="index.html">
+                <img src="PYDAH FLAG  (1).png" alt="Pydah Logo" style="height: 80px;">
+            </a>
+        </div>
+        <ul class="nav-links nav-links-compact">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#events">Events</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <div class="register-container">
+        <h2 class="events-title" style="margin-bottom: 30px; color: var(--gold);">Event Registration</h2>
+        
+        <div class="glass-card form-card">
+            <div class="card-content">
+                <h4 style="margin-bottom: 20px;">Join WINGS 2026</h4>
+                <form action="#" style="width: 100%;">
+                    <input type="text" class="form-input" placeholder="Full Name" required>
+                    <input type="email" class="form-input" placeholder="Email Address" required>
+                    <input type="tel" class="form-input" placeholder="Phone Number" required>
+                    <select class="form-input" style="cursor: pointer;">
+                        <option value="" style="color: black;">Select Event Category</option>
+                        <option value="sports" style="color: black;">Sports</option>
+                        <option value="technical" style="color: black;">Technical Events</option>
+                        <option value="onspot" style="color: black;">On-Spot Events</option>
+                        <option value="media" style="color: black;">Media Events</option>
+                    </select>
+                    
+                    <button type="submit" class="btn btn-primary btn-orange glow-button" style="margin-top: 10px; border: none; width: 100%;">Submit Registration</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer class="main-footer" style="margin-top: auto;">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <span>PYDAH</span> WINGS 2026
+            </div>
+            <p class="copyright">© 2026 Pydah Group of Educational Institutions. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
