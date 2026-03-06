@@ -162,7 +162,7 @@
                 <!-- Details injected here -->
             </div>
             <div style="display: flex; gap: 10px; flex-direction: column;">
-                <button id="verifyBtn" onclick="verifyParticipant()" class="btn btn-orange glow-button" style="width: 100%;">Verify Entry</button>
+                <button id="attendBtn" onclick="markAttendance()" class="btn btn-orange glow-button" style="width: 100%;">Mark as Attended</button>
                 <button onclick="resetScanner()" class="btn btn-blue glow-button" style="width: 100%;">Scan Next</button>
             </div>
         </div>
@@ -213,49 +213,53 @@
                 } catch (e) {}
 
                 let statusColor = doc.verification_status === 'Verified' ? '#4ade80' : '#facc15';
+                let attendedColor = doc.attended ? '#4ade80' : '#ef4444';
+                let attendedText = doc.attended ? 'Yes' : 'No';
 
                 detailsDiv.innerHTML = `
                     <p style="margin-bottom: 8px;"><strong>Name:</strong> ${doc.name}</p>
+                    <p style="margin-bottom: 8px;"><strong>Short ID:</strong> <span style="font-size: 1.2rem; color: var(--gold); font-weight: bold;">${doc.shortId || 'N/A'}</span></p>
                     <p style="margin-bottom: 8px;"><strong>College:</strong> ${doc.college}</p>
                     <p style="margin-bottom: 8px;"><strong>ID:</strong> <span style="font-family: monospace; color: #aaa;">${doc.$id}</span></p>
                     <p style="margin-bottom: 8px;"><strong>Events:</strong> ${eventsDisplay}</p>
                     <p style="margin-bottom: 8px;"><strong>Payment Ref:</strong> ${doc.paymentReference}</p>
-                    <p style="margin-top: 15px; font-size: 1.2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;"><strong>Status:</strong> <span id="statusDisplay" style="color: ${statusColor}; font-weight: bold;">${doc.verification_status}</span></p>
+                    <p style="margin-top: 15px; font-size: 1rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;"><strong>Payment:</strong> <span style="color: ${statusColor}; font-weight: bold;">${doc.verification_status}</span></p>
+                    <p style="margin-top: 5px; font-size: 1rem;"><strong>Attended:</strong> <span id="attendedDisplay" style="color: ${attendedColor}; font-weight: bold;">${attendedText}</span></p>
                 `;
 
-                if (doc.verification_status === 'Verified') {
-                    verifyBtn.textContent = 'Already Verified';
-                    verifyBtn.disabled = true;
-                    verifyBtn.style.opacity = '0.5';
+                if (doc.attended) {
+                    attendBtn.textContent = 'Already Marked Present';
+                    attendBtn.disabled = true;
+                    attendBtn.style.opacity = '0.5';
                 } else {
-                    verifyBtn.textContent = 'Verify Entry';
-                    verifyBtn.disabled = false;
-                    verifyBtn.style.opacity = '1';
+                    attendBtn.textContent = 'Mark as Attended';
+                    attendBtn.disabled = false;
+                    attendBtn.style.opacity = '1';
                 }
 
             } catch (error) {
                 console.error(error);
                 detailsDiv.innerHTML = '<p style="color: #ef4444;">Error fetching details. Invalid QR or Network Error.</p>';
-                verifyBtn.style.display = 'none';
+                attendBtn.style.display = 'none';
             }
         }
 
-        async function verifyParticipant() {
+        async function markAttendance() {
             if (!currentDocId) return;
-            const verifyBtn = document.getElementById('verifyBtn');
-            verifyBtn.textContent = 'Verifying...';
+            const attendBtn = document.getElementById('attendBtn');
+            attendBtn.textContent = 'Updating...';
             
             try {
                 await databases.updateDocument(DATABASE_ID, COLLECTION_ID, currentDocId, {
-                    verification_status: 'Verified'
+                    attended: true
                 });
-                document.getElementById('statusDisplay').textContent = 'Verified';
-                document.getElementById('statusDisplay').style.color = '#4ade80';
-                verifyBtn.textContent = 'Verified Successfully';
-                verifyBtn.disabled = true;
+                document.getElementById('attendedDisplay').textContent = 'Yes';
+                document.getElementById('attendedDisplay').style.color = '#4ade80';
+                attendBtn.textContent = 'Marked Present';
+                attendBtn.disabled = true;
             } catch (error) {
-                alert('Failed to verify: ' + error.message);
-                verifyBtn.textContent = 'Verify Entry';
+                alert('Failed to update attendance: ' + error.message);
+                attendBtn.textContent = 'Mark as Attended';
             }
         }
 

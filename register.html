@@ -515,6 +515,9 @@
             submitBtn.textContent = 'Submitting...';
             submitBtn.disabled = true;
 
+            // Generate 5-digit Short ID
+            const shortId = Math.floor(10000 + Math.random() * 90000).toString();
+
             // Common Data Preparation
             const commonData = {
                 name: formData.get('name'),
@@ -531,7 +534,9 @@
                 projectTopic: formData.get('projectTopic') || '',
                 paymentReference: formData.get('paymentReference'),
                 timestamp: new Date().toISOString(),
-                verification_status: 'Pending'
+                verification_status: 'Pending',
+                shortId: shortId,
+                attended: false
             };
 
             // --- Appwrite Submission Logic ---

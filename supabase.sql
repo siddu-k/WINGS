@@ -3,6 +3,7 @@
 
 create table if not exists registrations (
     id uuid default gen_random_uuid() primary key,
+    "shortId" text not null, -- New 5-digit ID
     name text not null,
     email text not null,
     phone text not null,
@@ -18,7 +19,8 @@ create table if not exists registrations (
     "projectAbstractFileId" text, -- Stores file path in Supabase Storage
     "paymentReference" text not null,
     timestamp timestamptz not null,
-    verification_status text not null default 'Pending'
+    verification_status text not null default 'Pending',
+    attended boolean not null default false
 );
 
 -- Enable Row Level Security (RLS)

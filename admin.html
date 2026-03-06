@@ -196,13 +196,16 @@
                 <table id="regTable">
                     <thead>
                         <tr>
+                            <th>Short ID</th>
                             <th>Date</th>
                             <th>Name</th>
                             <th>College</th>
                             <th>Phone</th>
                             <th>Events</th>
                             <th>Payment Ref</th>
+                            <th>Abstract</th>
                             <th>Status</th>
+                            <th>Attended</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -274,7 +277,11 @@
 
             } catch (error) {
                 console.error(error);
-                tableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #ef4444;">Error fetching data from ${currentSource}: ${error.message}</td></tr>`;
+                let errorMsg = error.message;
+                if (errorMsg === 'Failed to fetch') {
+                    errorMsg += '. This is likely a CORS error. Please add "127.0.0.1" (or "localhost") as a Web Platform in your Appwrite Console.';
+                }
+                tableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #ef4444;">Error fetching data from ${currentSource}: ${errorMsg}</td></tr>`;
             }
         }
 
@@ -302,8 +309,19 @@
 
                 const date = new Date(doc.timestamp).toLocaleDateString();
 
+                let abstractHtml = '<span style="color: #aaa;">-</span>';
+                if (doc.projectAbstractFileId) {
+                    if (currentSource === 'Appwrite') {
+                        abstractHtml = `<a href="https://sgp.cloud.appwrite.io/v1/storage/buckets/69aae4bf003c0163ef2c/files/${doc.projectAbstractFileId}/view?project=69aace7f002dc7981fc6" target="_blank" class="action-btn" style="background: var(--primary-orange); text-decoration: none; font-size: 0.75rem; padding: 4px 8px;"><i class="fa-solid fa-file-pdf"></i> Open</a>`;
+                    } else {
+                        // Supabase
+                        abstractHtml = `<a href="https://miflxuibznwljdqddvso.supabase.co/storage/v1/object/public/abstracts/${doc.projectAbstractFileId}" target="_blank" class="action-btn" style="background: var(--primary-orange); text-decoration: none; font-size: 0.75rem; padding: 4px 8px;"><i class="fa-solid fa-file-pdf"></i> Open</a>`;
+                    }
+                }
+
                 return `
                     <tr>
+                        <td><span style="font-weight: bold; color: var(--gold);">${doc.shortId || '-'}</span></td>
                         <td>${date}</td>
                         <td>
                             <div>${doc.name}</div>
@@ -313,12 +331,16 @@
                         <td>${doc.phone}</td>
                         <td><div style="max-width: 200px; white-space: normal;">${eventsDisplay}</div></td>
                         <td>${doc.paymentReference}</td>
+                        <td>${abstractHtml}</td>
                         <td>
                             <select class="status-select" id="status-${doc.$id}" style="border-color: ${doc.verification_status === 'Verified' ? '#4ade80' : '#facc15'}">
                                 <option value="Pending" ${doc.verification_status === 'Pending' ? 'selected' : ''}>Pending</option>
                                 <option value="Verified" ${doc.verification_status === 'Verified' ? 'selected' : ''}>Verified</option>
                                 <option value="Rejected" ${doc.verification_status === 'Rejected' ? 'selected' : ''}>Rejected</option>
                             </select>
+                        </td>
+                        <td>
+                            <span style="color: ${doc.attended ? '#4ade80' : '#ef4444'}; font-weight: bold;">${doc.attended ? 'Yes' : 'No'}</span>
                         </td>
                         <td>
                             <button onclick="updateStatus('${doc.$id}')" class="action-btn">Update</button>
@@ -367,6 +389,7 @@
         function filterTable() {
             const query = document.getElementById('searchInput').value.toLowerCase();
             const filtered = allRegistrations.filter(doc => 
+                (doc.shortId && doc.shortId.includes(query)) ||
                 doc.name.toLowerCase().includes(query) ||
                 doc.email.toLowerCase().includes(query) ||
                 doc.phone.includes(query) ||
@@ -379,7 +402,7 @@
         function downloadCSV() {
             if (!allRegistrations.length) return;
             
-            const headers = ['ID', 'Name', 'Email', 'Phone', 'College', 'Department', 'Year', 'Events', 'Type', 'Team Name', 'Payment Ref', 'Status', 'Timestamp'];
+            const headers = ['ID', 'Short ID', 'Name', 'Email', 'Phone', 'College', 'Department', 'Year', 'Events', 'Type', 'Team Name', 'Payment Ref', 'Status', 'Attended', 'Timestamp'];
             const csvRows = [headers.join(',')];
             
             allRegistrations.forEach(doc => {
@@ -394,6 +417,7 @@
                 
                 const row = [
                     escape(doc.$id),
+                    escape(doc.shortId),
                     escape(doc.name),
                     escape(doc.email),
                     escape(doc.phone),
@@ -405,6 +429,7 @@
                     escape(doc.teamName),
                     escape(doc.paymentReference),
                     escape(doc.verification_status),
+                    escape(doc.attended),
                     escape(doc.timestamp)
                 ];
                 csvRows.push(row.join(','));

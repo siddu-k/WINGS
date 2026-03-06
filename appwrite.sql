@@ -5,6 +5,7 @@
 CREATE TABLE registrations (
     -- Appwrite automatically handles the primary key ($id), but this is for representation.
     id VARCHAR(255) PRIMARY KEY,
+    shortId VARCHAR(5) NOT NULL, -- New 5-digit ID for easy lookup
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
     phone VARCHAR(20) NOT NULL,
@@ -20,5 +21,6 @@ CREATE TABLE registrations (
     projectAbstractFileId VARCHAR(255), -- To store the ID of the uploaded file from Appwrite Storage.
     paymentReference VARCHAR(255) NOT NULL,
     timestamp TIMESTAMP NOT NULL,
-    verification_status VARCHAR(20) NOT NULL DEFAULT 'Pending'
+    verification_status VARCHAR(20) NOT NULL DEFAULT 'Pending',
+    attended BOOLEAN NOT NULL DEFAULT FALSE -- New attendance tracking
 );

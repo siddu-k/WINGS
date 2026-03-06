@@ -204,13 +204,17 @@
                                     <div style="margin-top: 20px; padding: 5px 15px; border: 1px solid rgba(255,255,255,0.3); border-radius: 4px; font-size: 0.8rem; letter-spacing: 1px;">ADMIT CARD</div>
                                 </div>
                                 <div class="ticket-right">
-                                    <div id="qr-${doc.$id}" style="position: absolute; top: 20px; right: 20px; background: white; padding: 5px; border-radius: 4px;">
+                                    <div id="qr-${doc.$id}" style="position: absolute; top: 20px; right: 20px; background: white; padding: 5px; border-radius: 4px; z-index: 10;">
                                         <!-- QR Code -->
                                     </div>
                                     <div>
-                                        <div style="margin-bottom: 15px;">
+                                        <div style="margin-bottom: 15px; padding-right: 100px;">
                                             <span style="color: #f2c94c; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 4px;">Participant Name</span>
                                             <h3 style="margin: 0; font-size: 1.8rem; font-weight: 700;">${doc.name}</h3>
+                                        </div>
+                                        <div style="margin-bottom: 15px;">
+                                            <span style="color: #f2c94c; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 4px;">Short ID</span>
+                                            <h3 style="margin: 0; font-size: 1.5rem; font-weight: 700; color: white;">${doc.shortId || 'N/A'}</h3>
                                         </div>
                                         <div style="margin-bottom: 15px;">
                                             <span style="color: #f2c94c; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 4px;">College</span>
