@@ -574,12 +574,6 @@ nav {
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s;
 }
 
-.glass-card:hover {
-    transform: translateY(-15px) scale(1.05);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.08);
-}
-
 .card-icon {
     margin-bottom: 25px;
     display: flex;
@@ -744,7 +738,7 @@ nav {
     background: var(--primary-blue);
     border-color: var(--light-blue);
     color: white;
-    transform: translateY(-5px) scale(1.1);
+    transform: translateY(-5px);
     box-shadow: 0 5px 15px rgba(11, 97, 170, 0.6);
 }
 

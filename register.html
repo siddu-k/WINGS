@@ -11,6 +11,7 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* Page specific overrides to ensure full height layout */
         body {
@@ -514,8 +515,27 @@
             submitBtn.textContent = 'Submitting...';
             submitBtn.disabled = true;
 
-            try {
-                // Initialize Appwrite (Scoped locally to avoid conflict if auth.js defines 'client')
+            // Common Data Preparation
+            const commonData = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                college: formData.get('college'),
+                department: formData.get('department'),
+                year: formData.get('year'),
+                events: JSON.stringify(selectedEvents), 
+                participationType: formData.get('participationType'),
+                teamName: formData.get('teamName') || null,
+                teammate2: formData.get('teammate2') || null,
+                teammate3: formData.get('teammate3') || null,
+                projectTopic: formData.get('projectTopic') || '',
+                paymentReference: formData.get('paymentReference'),
+                timestamp: new Date().toISOString(),
+                verification_status: 'Pending'
+            };
+
+            // --- Appwrite Submission Logic ---
+            const submitToAppwrite = async () => {
                 const regClient = new Appwrite.Client();
                 regClient
                     .setEndpoint('https://sgp.cloud.appwrite.io/v1')
@@ -534,48 +554,84 @@
                 if (selectedEvents.includes('project-expo')) {
                     const abstractFile = formData.get('projectAbstract');
                     if (abstractFile && abstractFile.size > 0) {
-                        try {
-                            const fileUpload = await storage.createFile(
-                                BUCKET_ID,
-                                Appwrite.ID.unique(),
-                                abstractFile
-                            );
-                            abstractFileId = fileUpload.$id;
-                        } catch (uploadError) {
-                            console.error('File upload failed:', uploadError);
-                            throw new Error('Failed to upload Abstract PDF. Please try again.');
-                        }
+                        const fileUpload = await storage.createFile(
+                            BUCKET_ID,
+                            Appwrite.ID.unique(),
+                            abstractFile
+                        );
+                        abstractFileId = fileUpload.$id;
                     }
                 }
 
-                const data = {
-                    name: formData.get('name'),
-                    email: formData.get('email'),
-                    phone: formData.get('phone'),
-                    college: formData.get('college'),
-                    department: formData.get('department'),
-                    year: formData.get('year'),
-                    // Store events as a JSON string as per your SQL schema
-                    events: JSON.stringify(selectedEvents), 
-                    participationType: formData.get('participationType'),
-                    teamName: formData.get('teamName') || null,
-                    teammate2: formData.get('teammate2') || null,
-                    teammate3: formData.get('teammate3') || null,
-                    projectTopic: formData.get('projectTopic') || '', // Capture topic if present
-                    projectAbstractFileId: abstractFileId, // Store the file ID from storage
-                    paymentReference: formData.get('paymentReference'),
-                    timestamp: new Date().toISOString(),
-                    verification_status: 'Pending'
-                };
+                const data = { ...commonData, projectAbstractFileId: abstractFileId };
+                return await databases.createDocument(DATABASE_ID, COLLECTION_ID, Appwrite.ID.unique(), data);
+            };
 
-                await databases.createDocument(DATABASE_ID, COLLECTION_ID, Appwrite.ID.unique(), data);
+            // --- Supabase Submission Logic ---
+            const submitToSupabase = async () => {
+                // REPLACE WITH YOUR SUPABASE CREDENTIALS
+                const SUPABASE_URL = 'https://miflxuibznwljdqddvso.supabase.co';
+                const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pZmx4dWliem53bGpkcWRkdnNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MTM2MzYsImV4cCI6MjA4ODM4OTYzNn0._iK-yrsoTgmI_T0I8M5wzFx-oDOkDAFoZh1b9h6_K8g';
+                const SUPABASE_BUCKET = 'abstracts'; // IMPORTANT: Create this 'public' bucket in Supabase Storage
+                const SUPABASE_TABLE = 'registrations'; // Ensure this table exists in Supabase
+
+                if (SUPABASE_URL === 'YOUR_SUPABASE_URL') {
+                    console.warn("Supabase credentials not set. Skipping.");
+                    // We don't throw here to avoid failing the Promise.allSettled if user hasn't set it up yet
+                    return { skipped: true };
+                }
+
+                const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+                let abstractFilePath = null;
+                if (selectedEvents.includes('project-expo')) {
+                    const abstractFile = formData.get('projectAbstract');
+                    if (abstractFile && abstractFile.size > 0) {
+                        const fileName = `${Date.now()}_${abstractFile.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+                        const { data, error } = await supabaseClient.storage
+                            .from(SUPABASE_BUCKET)
+                            .upload(fileName, abstractFile);
+                        
+                        if (error) throw error;
+                        abstractFilePath = data.path;
+                    }
+                }
+
+                const data = { ...commonData, projectAbstractFileId: abstractFilePath };
+                const { data: result, error } = await supabaseClient
+                    .from(SUPABASE_TABLE)
+                    .insert([data])
+                    .select();
+
+                if (error) throw error;
+                return result;
+            };
+
+            try {
+                // Execute both in parallel
+                const results = await Promise.allSettled([submitToAppwrite(), submitToSupabase()]);
                 
-                showStatus('Registration Successful! See you at WINGS 2026.', 'success');
-                e.target.reset();
-                updateEventCount(); // Reset counter
-                
-                // Scroll to top smoothly
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                const appwriteResult = results[0];
+                const supabaseResult = results[1];
+
+                // Check if at least one succeeded
+                if (appwriteResult.status === 'fulfilled' || supabaseResult.status === 'fulfilled') {
+                    showStatus('Registration Successful! See you at WINGS 2026.', 'success');
+                    e.target.reset();
+                    updateEventCount(); // Reset counter
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    
+                    if (appwriteResult.status === 'rejected') console.warn('Appwrite failed:', appwriteResult.reason);
+                    if (supabaseResult.status === 'rejected') console.warn('Supabase failed:', supabaseResult.reason);
+                    if (supabaseResult.status === 'fulfilled' && supabaseResult.value && supabaseResult.value.skipped) {
+                        console.warn('Supabase submission was skipped because credentials are not set in register.html.');
+                    }
+                } else {
+                    // Both failed
+                    console.error('Appwrite error:', appwriteResult.reason);
+                    console.error('Supabase error:', supabaseResult.reason);
+                    throw new Error('Submission failed. Please try again later.');
+                }
                 
             } catch (error) {
                 console.error('Registration failed:', error);
