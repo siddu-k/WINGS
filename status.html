@@ -253,7 +253,7 @@
                         const qrContainer = document.getElementById(`qr-${doc.$id}`);
                         if (qrContainer) {
                             new QRCode(qrContainer, {
-                                text: doc.$id,
+                                text: doc.shortId || doc.$id,
                                 width: 80,
                                 height: 80
                             });

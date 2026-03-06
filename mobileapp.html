@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=Inter:wght@400..700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <style>
         :root {
@@ -136,7 +137,7 @@
         /* Override html5-qrcode styles to match theme */
         #reader__scan_region { background: transparent; }
         #reader__dashboard_section_csr span, #reader__dashboard_section_swaplink { display: none !important; }
-        button { margin-top: 10px; }
+        button { margin-top: 0; }
     </style>
 </head>
 <body>
@@ -155,6 +156,13 @@
         <div id="reader" style="position: relative;"></div>
         <p id="scannerMessage" style="color: #aaa; margin-top: 15px; text-align: center; max-width: 500px; display: none;"></p>
         
+        <!-- Manual Search Box -->
+        <div style="width: 100%; max-width: 500px; margin: 20px 0; display: flex; gap: 10px;">
+            <input type="text" id="manualInput" placeholder="Enter 5-digit Short ID" style="flex: 1; padding: 12px; border-radius: 4px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.1); color: white; outline: none;">
+            <button onclick="manualSearch()" class="btn btn-blue glow-button" style="padding: 12px 20px;"><i class="fa-solid fa-search"></i></button>
+            <button onclick="clearSearch()" class="btn btn-orange glow-button" style="padding: 12px 20px;"><i class="fa-solid fa-times"></i></button>
+        </div>
+
         <!-- Result Display -->
         <div id="resultCard" class="glass-card result-card">
             <h3 style="color: var(--gold); margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">Participant Details</h3>
@@ -162,7 +170,7 @@
                 <!-- Details injected here -->
             </div>
             <div style="display: flex; gap: 10px; flex-direction: column;">
-                <button id="attendBtn" onclick="markAttendance()" class="btn btn-orange glow-button" style="width: 100%;">Mark as Attended</button>
+                <button id="attendBtn" onclick="markAttendance()" class="btn btn-orange glow-button" style="width: 100%; margin-top: 10px;">Mark as Attended</button>
                 <button onclick="resetScanner()" class="btn btn-blue glow-button" style="width: 100%;">Scan Next</button>
             </div>
         </div>
@@ -176,8 +184,14 @@
         const DATABASE_ID = '69aacf420003152c50f2';
         const COLLECTION_ID = '69aae492003d1d3dfdba';
 
+        // Supabase Config (Failover)
+        const SUPABASE_URL = 'https://miflxuibznwljdqddvso.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pZmx4dWliem53bGpkcWRkdnNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MTM2MzYsImV4cCI6MjA4ODM4OTYzNn0._iK-yrsoTgmI_T0I8M5wzFx-oDOkDAFoZh1b9h6_K8g';
+        const supabaseClient = typeof supabase !== 'undefined' ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
         let html5QrCode;
-        let currentDocId = null;
+        let currentShortId = null;
+        let currentAppwriteId = null; // Store specific ID for updates
 
         function onScanSuccess(decodedText, decodedResult) {
             // Stop scanning temporarily to show results
@@ -194,17 +208,58 @@
             console.warn(`QR code scan failed: ${error}`);
         }
 
-        async function fetchDetails(docId) {
+        function manualSearch() {
+            const input = document.getElementById('manualInput');
+            if (input.value.trim()) {
+                fetchDetails(input.value.trim());
+            }
+        }
+
+        function clearSearch() {
+            document.getElementById('manualInput').value = '';
+            resetScanner();
+        }
+
+        async function fetchDetails(shortId) {
             const detailsDiv = document.getElementById('participantDetails');
             const resultCard = document.getElementById('resultCard');
-            const verifyBtn = document.getElementById('verifyBtn');
+            const attendBtn = document.getElementById('attendBtn');
             
             resultCard.style.display = 'block';
             detailsDiv.innerHTML = '<p>Loading details...</p>';
-            currentDocId = docId;
+            
+            currentShortId = shortId;
+            currentAppwriteId = null;
+            let doc = null;
 
             try {
-                const doc = await databases.getDocument(DATABASE_ID, COLLECTION_ID, docId);
+                // 1. Try Appwrite first
+                try {
+                    const response = await databases.listDocuments(
+                        DATABASE_ID, 
+                        COLLECTION_ID, 
+                        [Appwrite.Query.equal('shortId', shortId)]
+                    );
+                    if (response.documents.length > 0) {
+                        doc = response.documents[0];
+                        currentAppwriteId = doc.$id;
+                    }
+                } catch (appwriteError) {
+                    console.warn("Appwrite fetch failed, trying Supabase...", appwriteError);
+                }
+                    
+                // 2. Failover to Supabase if Appwrite didn't find it
+                if (!doc && supabaseClient) {
+                    const { data, error } = await supabaseClient
+                        .from('registrations')
+                        .select('*')
+                        .eq('shortId', shortId)
+                        .single();
+                    
+                    if (error) throw error;
+                    doc = data;
+                    doc.$id = doc.id; // Normalize ID for display
+                }
                 
                 let eventsDisplay = doc.events;
                 try {
@@ -240,19 +295,39 @@
             } catch (error) {
                 console.error(error);
                 detailsDiv.innerHTML = '<p style="color: #ef4444;">Error fetching details. Invalid QR or Network Error.</p>';
-                attendBtn.style.display = 'none';
+                if(attendBtn) attendBtn.style.display = 'none';
             }
         }
 
         async function markAttendance() {
-            if (!currentDocId) return;
+            if (!currentShortId) return;
             const attendBtn = document.getElementById('attendBtn');
             attendBtn.textContent = 'Updating...';
             
             try {
-                await databases.updateDocument(DATABASE_ID, COLLECTION_ID, currentDocId, {
-                    attended: true
-                });
+                const updates = [];
+
+                // Update Appwrite (Need Document ID)
+                // If we fetched from Supabase, we might not have Appwrite ID yet. 
+                // Try to find it if missing.
+                if (!currentAppwriteId) {
+                    try {
+                        const list = await databases.listDocuments(DATABASE_ID, COLLECTION_ID, [Appwrite.Query.equal('shortId', currentShortId)]);
+                        if (list.documents.length > 0) currentAppwriteId = list.documents[0].$id;
+                    } catch(e) {}
+                }
+
+                if (currentAppwriteId) {
+                    updates.push(databases.updateDocument(DATABASE_ID, COLLECTION_ID, currentAppwriteId, { attended: true }));
+                }
+                
+                // Update Supabase (Can use shortId directly)
+                if (supabaseClient) {
+                    updates.push(supabaseClient.from('registrations').update({ attended: true }).eq('shortId', currentShortId));
+                }
+
+                await Promise.allSettled(updates);
+
                 document.getElementById('attendedDisplay').textContent = 'Yes';
                 document.getElementById('attendedDisplay').style.color = '#4ade80';
                 attendBtn.textContent = 'Marked Present';
