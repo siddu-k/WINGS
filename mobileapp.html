@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WINGS Scanner App</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="scanner.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=Inter:wght@400..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+</head>
+<body>
+    <!-- Simplified Nav -->
+    <nav class="glass-nav">
+        <div class="logo">
+            <a href="index.html">
+                <img src="PYDAH FLAG  (1).png" alt="Pydah Logo" style="height: 60px;" class="nav-logo">
+            </a>
+        </div>
+        <div style="color: var(--gold); font-family: var(--font-heading); font-size: 1.2rem;">SCANNER</div>
+    </nav>
+
+    <div class="scanner-container">
+        <!-- Camera Viewport -->
+        <div id="reader" style="position: relative;"></div>
+        <p id="scannerMessage" style="color: #aaa; margin-top: 15px; text-align: center; max-width: 500px; display: none;"></p>
+        
+        <!-- Result Display -->
+        <div id="resultCard" class="glass-card result-card">
+            <h3 style="color: var(--gold); margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">Participant Details</h3>
+            <div id="participantDetails" style="text-align: left; margin-bottom: 20px; color: white;">
+                <!-- Details injected here -->
+            </div>
+            <div style="display: flex; gap: 10px; flex-direction: column;">
+                <button id="verifyBtn" onclick="verifyParticipant()" class="btn btn-orange glow-button" style="width: 100%;">Verify Entry</button>
+                <button onclick="resetScanner()" class="btn btn-blue glow-button" style="width: 100%;">Scan Next</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="scanner.js" defer></script>
+</body>
+</html>

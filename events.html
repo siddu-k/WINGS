@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events - WINGS 2026</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=Inter:wght@400..700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
+    <style>
+        /* Page specific overrides to ensure full height layout */
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .events-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 120px 20px 60px;
+            width: 100%;
+            gap: 30px;
+        }
+        .event-detail-card {
+            width: 100%;
+            max-width: 800px;
+            padding: 30px 40px;
+            text-align: left;
+        }
+        .event-detail-card h4 {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--gold);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .event-list {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 20px;
+        }
+        .event-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 1.1rem;
+        }
+        .event-list li:last-child {
+            border-bottom: none;
+        }
+        .event-description {
+            color: #ccc;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+        /* Override nav-logo animation from style.css since this page has no loader */
+        .nav-logo {
+            opacity: 1 !important;
+            animation: none !important;
+        }
+        @media (max-width: 768px) {
+            .events-container {
+                padding: 100px 20px 40px;
+            }
+            .event-detail-card { padding: 25px; }
+        }
+        /* Carousel Styles */
+        .events-carousel {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .events-grid {
+            display: flex;
+            overflow-x: auto;
+            gap: 25px;
+            padding: 20px 5px;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+            width: 100%;
+        }
+        .events-grid::-webkit-scrollbar {
+            display: none;
+        }
+        .event-card {
+            min-width: 300px;
+            max-width: 300px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            flex-shrink: 0;
+        }
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .event-card-image-wrap {
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+        }
+        .event-card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .event-card:hover .event-card-image {
+            transform: scale(1.05);
+        }
+        .event-card-body {
+            padding: 20px;
+        }
+        .event-card-body h3 {
+            color: var(--gold);
+            margin-bottom: 10px;
+            font-family: var(--font-heading);
+            font-size: 1.2rem;
+        }
+        .event-card-body p {
+            font-size: 0.9rem;
+            color: #ccc;
+            line-height: 1.5;
+        }
+        .events-side-btn {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            z-index: 2;
+            flex-shrink: 0;
+        }
+        .events-side-btn:hover {
+            background: var(--gold);
+            color: #000;
+        }
+        /* Reveal Animation */
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .reveal-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="glass-nav">
+        <div class="logo">
+            <a href="index.html">
+                <img src="PYDAH FLAG  (1).png" alt="Pydah Logo" style="height: 80px;" class="nav-logo">
+            </a>
+        </div>
+        <ul class="nav-links nav-links-compact">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="register.html">Register</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+            <li class="auth-link-item"><a href="status.html">Status</a></li>
+        </ul>
+    </nav>
+
+    <div class="events-container">
+        <h2 class="events-title" style="color: var(--gold);">Event Details</h2>
+        
+        <!-- Sports -->
+        <div class="glass-card event-detail-card">
+            <h4><i class="fa-solid fa-trophy"></i> Sports</h4>
+            <p class="event-description">
+                Unleash your competitive spirit in our thrilling sports events. Teamwork, strategy, and skill will be on full display.
+            </p>
+            <ul class="event-list">
+                <li>Chess</li>
+                <li>Cricket</li>
+                <li>Kabaddi</li>
+                <li>Volley Ball</li>
+                <li>Throw Ball</li>
+            </ul>
+            <a href="register.html" class="btn btn-orange glow-button">Register for Sports</a>
+        </div>
+
+        <!-- Technical & On-Spot Events Carousel -->
+        <div class="events-carousel" aria-label="Technical events list and navigation">
+            <button type="button" class="events-side-btn" aria-label="Show previous technical events">‹</button>
+            <div class="events-grid" aria-label="Technical events list">
+                <article class="event-card reveal-on-scroll" style="--reveal-delay: 0ms;">
+                    <div class="event-card-image-wrap"><img alt="Project Expo" class="event-card-image" loading="lazy" src="/assets/ProjectExpo.jpeg"></div>
+                    <div class="event-card-body">
+                        <h3>Project Expo</h3>
+                        <p>Present innovative real-world projects, explain implementation, and demonstrate technical impact.</p>
+                    </div>
+                </article>
+                <article class="event-card reveal-on-scroll" style="--reveal-delay: 70ms;">
+                    <div class="event-card-image-wrap"><img alt="Circuitry" class="event-card-image" loading="lazy" src="/assets/Circuitry.jpeg"></div>
+                    <div class="event-card-body">
+                        <h3>Circuitry</h3>
+                        <p>Design, analyze, and troubleshoot practical electronic circuits under timed challenge conditions.</p>
+                    </div>
+                </article>
+                <article class="event-card reveal-on-scroll" style="--reveal-delay: 140ms;">
+                    <div class="event-card-image-wrap"><img alt="Robotics" class="event-card-image" loading="lazy" src="/assets/Robotics.png"></div>
+                    <div class="event-card-body">
+                        <h3>Robotics</h3>
+                        <p>Build and control bots to solve task-based problem statements and arena rounds.</p>
+                    </div>
+                </article>
+                <article class="event-card reveal-on-scroll" style="--reveal-delay: 210ms;">
+                    <div class="event-card-image-wrap"><img alt="Web Planting with AI" class="event-card-image" loading="lazy" src="/assets/WebPlanting.png"></div>
+                    <div class="event-card-body">
+                        <h3>Web Planting with AI</h3>
+                        <p>Create modern web solutions by integrating AI-assisted workflows and deployment-ready architecture.</p>
+                    </div>
+                </article>
+                <article class="event-card reveal-on-scroll" style="--reveal-delay: 280ms;">
+                    <div class="event-card-image-wrap"><img alt="Techno Quiz" class="event-card-image" loading="lazy" src="/assets/TechnoQuiz.jpeg"></div>
+                    <div class="event-card-body">
+                        <h3>Techno Quiz</h3>
+                        <p>Compete in a fast-paced quiz covering emerging technologies, engineering trends, and innovation.</p>
+                    </div>
+                </article>
+                <article class="event-card reveal-on-scroll" style="--reveal-delay: 350ms;">
+                    <div class="event-card-image-wrap"><img alt="Debugging Events" class="event-card-image" loading="lazy" src="/assets/DebuggingEvents.png"></div>
+                    <div class="event-card-body">
+                        <h3>Debugging Events</h3>
+                        <p>Identify and fix code-level issues efficiently with strong logic and precision under time constraints.</p>
+                    </div>
+                </article>
+                <article class="event-card reveal-on-scroll" style="--reveal-delay: 420ms;">
+                    <div class="event-card-image-wrap"><img alt="Startup Idea Pitching" class="event-card-image" loading="lazy" src="/assets/StartupIdeaPitching.png"></div>
+                    <div class="event-card-body">
+                        <h3>Startup Idea Pitching</h3>
+                        <p>Pitch scalable startup concepts, market fit, and execution plans to panel evaluators.</p>
+                    </div>
+                </article>
+                <article class="event-card reveal-on-scroll" style="--reveal-delay: 490ms;">
+                    <div class="event-card-image-wrap"><img alt="Paper Presentations (PPT)" class="event-card-image" loading="lazy" src="/assets/PaperPresenation.png"></div>
+                    <div class="event-card-body">
+                        <h3>Paper Presentations (PPT)</h3>
+                        <p>Deliver clear, research-oriented technical presentations with structured problem-solution storytelling.</p>
+                    </div>
+                </article>
+            </div>
+            <button type="button" class="events-side-btn" aria-label="Show next technical events">›</button>
+        </div>
+
+        <!-- Media Events -->
+        <div class="glass-card event-detail-card">
+            <h4><i class="fa-solid fa-film"></i> Media Events</h4>
+            <p class="event-description">
+                Express your creativity through various media. Whether you're a filmmaker, a comedian, or a marketing guru, this is your stage.
+            </p>
+            <ul class="event-list">
+                <li>Short Film Contest</li>
+                <li>Standup Comedy</li>
+                <li>Ad Making</li>
+                <li>Selfie Contest</li>
+            </ul>
+            <a href="register.html" class="btn btn-orange glow-button">Register for Media Events</a>
+        </div>
+
+    </div>
+
+    <footer class="main-footer" style="margin-top: auto;">
+        <div class="footer-content" style="max-width: 800px; justify-content: space-between; width: 100%;">
+            <div class="footer-logo">
+                <span>PYDAH</span> WINGS 2026
+            </div>
+            <p class="copyright" style="text-align: right; margin-top: 0;">© 2026 Pydah Group. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Carousel Navigation Logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const grid = document.querySelector('.events-grid');
+            const prevBtn = document.querySelector('.events-side-btn[aria-label="Show previous technical events"]');
+            const nextBtn = document.querySelector('.events-side-btn[aria-label="Show next technical events"]');
+            
+            if (grid && prevBtn && nextBtn) {
+                nextBtn.addEventListener('click', () => {
+                    grid.scrollBy({ left: 320, behavior: 'smooth' });
+                });
+                
+                prevBtn.addEventListener('click', () => {
+                    grid.scrollBy({ left: -320, behavior: 'smooth' });
+                });
+            }
+
+            // Simple reveal on scroll for events page
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
+        });
+    </script>
+</body>
+</html>

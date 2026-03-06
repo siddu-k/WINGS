@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=Inter:wght@400..700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
     <style>
         /* Page specific overrides to ensure full height layout */
         body {
@@ -27,35 +28,70 @@
         }
         .form-card {
             width: 100%;
-            max-width: 500px;
+            max-width: 1000px;
             padding: 40px;
         }
-        .form-input {
-            width: 100%;
-            padding: 12px 15px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-            border: 1px solid rgba(255,255,255,0.2);
-            background: rgba(255,255,255,0.05);
-            color: white;
-            font-family: var(--font-ui);
-            outline: none;
-            transition: border-color 0.3s;
-        }
-        .form-input:focus {
-            border-color: var(--gold);
-            background: rgba(255,255,255,0.1);
+        .glass-card.form-card:hover {
+            transform: none;
+            box-shadow: none;
+            background: var(--glass-bg);
         }
         /* Override nav-logo animation from style.css since this page has no loader */
         .nav-logo {
             opacity: 1 !important;
             animation: none !important;
         }
+        .form-divider {
+            border: none;
+            height: 1px;
+            background-color: var(--glass-border);
+            margin: 35px 0;
+        }
+        /* Accordion icon rotation */
+        summary .fa-chevron-down {
+            transition: transform 0.3s ease;
+        }
+        details[open] > summary .fa-chevron-down {
+            transform: rotate(180deg);
+        }
+        /* Team fields layout */
+        .team-members-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .payment-layout {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 30px;
+            align-items: center;
+        }
+        .payment-input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .payment-input-group small {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+        .team-members-grid .form-input,
+        .payment-input-group .form-input {
+            margin-bottom: 0;
+        }
         @media (max-width: 768px) {
             .register-container {
                 padding: 100px 20px 40px;
             }
             .form-card { padding: 25px; }
+            .team-members-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .payment-layout {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
         }
     </style>
 </head>
@@ -71,8 +107,9 @@
         </div>
         <ul class="nav-links nav-links-compact">
             <li><a href="index.html">Home</a></li>
-            <li><a href="index.html#events">Events</a></li>
+            <li><a href="events.html">Events</a></li>
             <li><a href="index.html#contact">Contact</a></li>
+            <li class="auth-link-item"><a href="status.html">Status</a></li>
         </ul>
     </nav>
 
@@ -82,20 +119,207 @@
         <div class="glass-card form-card">
             <div class="card-content">
                 <h4 style="margin-bottom: 20px;">Join WINGS 2026</h4>
-                <form action="#" style="width: 100%;">
-                    <input type="text" class="form-input" placeholder="Full Name" required>
-                    <input type="email" class="form-input" placeholder="Email Address" required>
-                    <input type="tel" class="form-input" placeholder="Phone Number" required>
-                    <select class="form-input" style="cursor: pointer;">
-                        <option value="" style="color: black;">Select Event Category</option>
-                        <option value="sports" style="color: black;">Sports</option>
-                        <option value="technical" style="color: black;">Technical Events</option>
-                        <option value="onspot" style="color: black;">On-Spot Events</option>
-                        <option value="media" style="color: black;">Media Events</option>
-                    </select>
-                    
-                    <button type="submit" class="btn btn-primary btn-orange glow-button" style="margin-top: 10px; border: none; width: 100%;">Submit Registration</button>
-                </form>
+                
+                <div class="form-container reveal-on-scroll" style="--reveal-delay: 70ms;">
+                    <form id="registrationForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="name">Full Name *</label>
+                                <input id="name" class="form-input" placeholder="Enter your full name" required type="text" name="name">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email Address *</label>
+                                <input id="email" class="form-input" placeholder="your.email@college.edu" required type="email" name="email">
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone Number *</label>
+                                <input id="phone" class="form-input" placeholder="+91 98******10" required type="tel" name="phone">
+                            </div>
+                            <div class="form-group">
+                                <label for="college">College Name *</label>
+                                <input id="college" class="form-input" placeholder="Your College Name" required type="text" name="college">
+                            </div>
+                            <div class="form-group">
+                                <label for="department">Department *</label>
+                                <select id="department" class="form-input" name="department" required>
+                                    <option value="">Select Department</option>
+                                    <option value="engineering">Engineering</option>
+                                    <option value="diploma">Diploma</option>
+                                    <option value="degree">Degree</option>
+                                    <option value="pharmacy">Pharmacy</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="year">Year of Study *</label>
+                                <select id="year" class="form-input" name="year" required>
+                                    <option value="">Select Year</option>
+                                    <option value="1st">1st Year</option>
+                                    <option value="2nd">2nd Year</option>
+                                    <option value="3rd">3rd Year</option>
+                                    <option value="4th">4th Year</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <hr class="form-divider">
+
+                        <div class="form-group" style="margin-top: 20px;">
+                            <label style="font-size: 1.1rem; color: var(--gold); margin-bottom: 15px; display: block;">Events * (<span id="eventCount">0</span>/2)</label>
+                            <div class="checkbox-group events-layout" id="events">
+                                <details class="event-category">
+                                    <summary class="event-category-title">
+                                        <span><i class="fas fa-microchip"></i> Technical</span>
+                                        <i class="fa-solid fa-chevron-down" style="margin-left: auto;"></i>
+                                    </summary>
+                                    <div class="event-list" style="padding: 15px;">
+                                        <div class="event-option-wrap">
+                                            <label class="event-option">
+                                                <input type="checkbox" value="project-expo" name="events">
+                                                <span><strong>Project Expo</strong><small>Showcase your innovative project and explain its impact.</small></span>
+                                            </label>
+                                        </div>
+                                        <div class="event-option-wrap">
+                                            <label class="event-option">
+                                                <input type="checkbox" value="circuitry" name="events">
+                                                <span><strong>Circuitry</strong><small>Design and troubleshoot practical circuits.</small></span>
+                                            </label>
+                                        </div>
+                                        <div class="event-option-wrap">
+                                            <label class="event-option">
+                                                <input type="checkbox" value="robotics" name="events">
+                                                <span><strong>Robotics</strong><small>Build and control bots in task rounds.</small></span>
+                                            </label>
+                                        </div>
+                                        <div class="event-option-wrap">
+                                            <label class="event-option">
+                                                <input type="checkbox" value="web-planting-ai" name="events">
+                                                <span><strong>Web Planting with AI</strong><small>Create web solutions with AI workflows.</small></span>
+                                            </label>
+                                        </div>
+                                        <div class="event-option-wrap">
+                                            <label class="event-option">
+                                                <input type="checkbox" value="techno-quiz" name="events">
+                                                <span><strong>Techno Quiz</strong><small>Quick quiz on tech and innovation.</small></span>
+                                            </label>
+                                        </div>
+                                        <div class="event-option-wrap">
+                                            <label class="event-option">
+                                                <input type="checkbox" value="debugging" name="events">
+                                                <span><strong>Debugging Events</strong><small>Find and fix code issues under time limits.</small></span>
+                                            </label>
+                                        </div>
+                                        <div class="event-option-wrap">
+                                            <label class="event-option">
+                                                <input type="checkbox" value="startup-pitching" name="events">
+                                                <span><strong>Startup Idea Pitching</strong><small>Pitch startup ideas to judges.</small></span>
+                                            </label>
+                                        </div>
+                                        <div class="event-option-wrap">
+                                            <label class="event-option">
+                                                <input type="checkbox" value="paper-presentations" name="events">
+                                                <span><strong>Paper Presentations (PPT)</strong><small>Present technical ideas with PPT.</small></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </details>
+
+                                <details class="event-category">
+                                    <summary class="event-category-title">
+                                        <span><i class="fas fa-palette"></i> Non-Technical</span>
+                                        <i class="fa-solid fa-chevron-down" style="margin-left: auto;"></i>
+                                    </summary>
+                                    <div class="event-list" style="padding: 15px;">
+                                        <div class="event-option-wrap">
+                                            <label class="event-option">
+                                                <input type="checkbox" value="short-film" name="events">
+                                                <span><strong>Short Film Making</strong><small>Create and present a short story film.</small></span>
+                                            </label>
+                                        </div>
+                                        <div class="event-option-wrap">
+                                            <label class="event-option">
+                                                <input type="checkbox" value="standup-comedy" name="events">
+                                                <span><strong>Standup Comedy</strong><small>Perform original comedy live on stage.</small></span>
+                                            </label>
+                                        </div>
+                                        <div class="event-option-wrap">
+                                            <label class="event-option">
+                                                <input type="checkbox" value="ad-making" name="events">
+                                                <span><strong>Ad Making</strong><small>Build and pitch a creative ad concept.</small></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </details>
+                            </div>
+                        </div>
+
+                        <!-- Project Expo Details Section (Hidden by default) -->
+                        <div id="projectExpoDetails" style="display: none; margin-top: 20px; padding: 20px; border: 1px solid var(--gold); border-radius: 8px; background: rgba(255, 255, 255, 0.05);">
+                            <h4 style="color: var(--gold); margin-bottom: 15px; font-family: var(--font-heading);">Project Expo Details</h4>
+                            <p style="color: #ccc; margin-bottom: 15px; font-size: 0.9rem;">Please provide the required details for your project.</p>
+                            <div class="form-group">
+                                <label for="technicalEventTopic">Topic Chosen *</label>
+                                <input id="technicalEventTopic" class="form-input" name="projectTopic" placeholder="Enter your topic" type="text">
+                            </div>
+                            <div class="form-group">
+                                <label for="technicalEventAbstractPdf">Abstract PDF *</label>
+                                <input id="technicalEventAbstractPdf" class="form-input" name="projectAbstract" accept="application/pdf" type="file" style="padding-top: 10px;">
+                                <small style="color: #aaa;">Upload a PDF file (max 5 MB).</small>
+                            </div>
+                        </div>
+
+                        <hr class="form-divider">
+
+                        <div class="form-group">
+                            <label for="participationType">Participation Type *</label>
+                            <select id="participationType" class="form-input" name="participationType" required onchange="toggleTeamFields()">
+                                <option value="individual">Individual</option>
+                                <option value="team">Team (max 3 members)</option>
+                            </select>
+                        </div>
+
+                        <!-- Team fields, hidden by default -->
+                        <div id="teamFields" style="display: none; margin-bottom: 20px;">
+                            <div class="form-group">
+                                <label for="teamName">Team name</label>
+                                <input id="teamName" class="form-input" placeholder="Team name" type="text" name="teamName">
+                            </div>
+                            <div class="team-members-grid">
+                                <input id="teammate2" class="form-input" placeholder="Teammate 2 name *" type="text" name="teammate2" required>
+                                <input id="teammate3" class="form-input" placeholder="Teammate 3 name (optional)" type="text" name="teammate3">
+                            </div>
+                            <div style="font-size: 0.95em; color: #aaa; margin-top: 10px; margin-bottom: 10px;">Team can have up to 3 members including you.</div>
+                        </div>
+
+                        <hr class="form-divider">
+
+                        <div class="form-group" style="margin-top: 20px;">
+                            <label style="font-size: 1.1rem; color: var(--gold); margin-bottom: 15px; display: block;">Payment * (₹300)</label>
+                            <div class="payment-layout">
+                                <div class="payment-qr-box">
+                                    <p class="payment-amount">Registration Fee: ₹300</p>
+                                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; background: #f0f0f0; padding: 8px 12px; border-radius: 4px; border: 1px solid #ddd;">
+                                        <span style="color: #333; font-family: monospace; font-weight: bold; font-size: 0.9rem;">303908985042716@cnrb</span>
+                                        <button type="button" onclick="copyToClipboard('303908985042716@cnrb')" style="background: none; border: none; cursor: pointer; color: var(--primary-blue);" title="Copy UPI ID">
+                                            <i class="fa-regular fa-copy"></i>
+                                        </button>
+                                    </div>
+                                    <p class="payment-note">Scan the QR and complete payment.</p>
+                                    <div class="payment-qr">
+                                        <img src="download.png" alt="Payment QR Code" style="height: 170px; width: 170px;">
+                                    </div>
+                                </div>
+                                <div class="payment-input-group">
+                                    <input id="paymentReference" class="form-input" placeholder="Enter UPI transaction/reference ID" required type="text" name="paymentReference">
+                                    <small>Enter the UPI transaction ID after completing the payment.</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="submit-btn">Submit Registration</button>
+                        <div class="form-status" id="formStatus" role="status" aria-live="polite"></div>
+                    </form>
+                </div>
             </div>
         </div>
 
@@ -152,7 +376,7 @@
                 </div>
                 <p class="footer-contact">
                     <i class="fa-solid fa-envelope"></i>
-                    <a href="mailto:princengg@pydah.edu.in">princengg@pydah.edu.in</a>
+                    <a href="mailto:wings2k26@pydah.edu.in">wings2k26@pydah.edu.in</a>
                 </p>
                 <p class="copyright">© 2026 Pydah Group of Educational Institutions. All Rights Reserved.</p>
                 <p class="made-by">Made by <a href="https://www.linkedin.com/in/ksridatta" target="_blank">@sidhardha</a></p>
@@ -160,5 +384,242 @@
         </div>
     </footer>
 
+    <script>
+                // Show/hide team fields based on participation type
+                function toggleTeamFields() {
+                    const type = document.getElementById('participationType').value;
+                    const teamFields = document.getElementById('teamFields');
+                    if (type === 'team') {
+                        teamFields.style.display = '';
+                        document.getElementById('teammate2').required = true;
+                    } else {
+                        teamFields.style.display = 'none';
+                        document.getElementById('teammate2').required = false;
+                        document.getElementById('teammate2').value = '';
+                        document.getElementById('teammate3').value = '';
+                        document.getElementById('teamName').value = '';
+                    }
+                }
+                // Initialize on page load
+                document.addEventListener('DOMContentLoaded', function() {
+                    toggleTeamFields();
+                });
+        // Event counter functionality
+        function updateEventCount() {
+            const checkedCount = document.querySelectorAll('input[name="events"]:checked').length;
+            const eventCountSpan = document.getElementById('eventCount');
+            if (eventCountSpan) {
+                eventCountSpan.textContent = checkedCount;
+            }
+        }
+
+        // Limit event selection to 2 and update counter
+        const eventCheckboxes = document.querySelectorAll('input[name="events"]');
+        eventCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const checkedCount = document.querySelectorAll('input[name="events"]:checked').length;
+                if (checkedCount > 2) {
+                    this.checked = false;
+                    alert('You can only select up to 2 events.');
+                } else {
+                    updateEventCount();
+                }
+            });
+        });
+
+        // Project Expo Section Logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const projectExpoCheckbox = document.querySelector('input[value="project-expo"]');
+            const detailsSection = document.getElementById('projectExpoDetails');
+            const topicInput = document.getElementById('technicalEventTopic');
+            const fileInput = document.getElementById('technicalEventAbstractPdf');
+
+            if (projectExpoCheckbox) {
+                projectExpoCheckbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        detailsSection.style.display = 'block';
+                        topicInput.required = true;
+                        fileInput.required = true;
+                    } else {
+                        detailsSection.style.display = 'none';
+                        topicInput.required = false;
+                        fileInput.required = false;
+                    }
+                });
+            }
+        });
+
+        // Initialize reveal on scroll animation
+        document.addEventListener('DOMContentLoaded', function() {
+            const revealElements = document.querySelectorAll('.reveal-on-scroll');
+            
+            function reveal() {
+                revealElements.forEach(element => {
+                    const elementTop = element.getBoundingClientRect().top;
+                    const elementVisible = 150;
+                    
+                    if (elementTop < window.innerHeight - elementVisible) {
+                        element.classList.add('is-visible');
+                    }
+                });
+            }
+            
+            reveal();
+            window.addEventListener('scroll', reveal);
+        });
+
+        // Generate QR code placeholder
+        const canvas = document.querySelector('.payment-qr canvas');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, 170, 170);
+            ctx.fillStyle = '#fff';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('QR CODE', 85, 85);
+        }
+
+        // Form submission handler
+        async function handleRegistration(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const selectedEvents = formData.getAll('events');
+
+            if (selectedEvents.length === 0) {
+                showStatus('Please select at least one event.', 'error');
+                return;
+            }
+
+            // Validate Project Expo details if selected
+            if (selectedEvents.includes('project-expo')) {
+                const topic = formData.get('projectTopic');
+                const abstract = formData.get('projectAbstract');
+                
+                if (!topic || !topic.trim()) {
+                    showStatus('Please enter a topic for Project Expo.', 'error');
+                    return;
+                }
+                if (!abstract || abstract.size === 0) {
+                     showStatus('Please upload an abstract PDF for Project Expo.', 'error');
+                     return;
+                }
+            }
+
+            // Show loading state
+            const submitBtn = e.target.querySelector('.submit-btn');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Submitting...';
+            submitBtn.disabled = true;
+
+            try {
+                // Initialize Appwrite (Scoped locally to avoid conflict if auth.js defines 'client')
+                const regClient = new Appwrite.Client();
+                regClient
+                    .setEndpoint('https://sgp.cloud.appwrite.io/v1')
+                    .setProject('69aace7f002dc7981fc6');
+                    
+                const databases = new Appwrite.Databases(regClient);
+                const storage = new Appwrite.Storage(regClient);
+                
+                // REPLACE WITH YOUR DATABASE AND COLLECTION IDs
+                const DATABASE_ID = '69aacf420003152c50f2';
+                const COLLECTION_ID = '69aae492003d1d3dfdba';
+                const BUCKET_ID = '69aae4bf003c0163ef2c'; // Create a Bucket in Appwrite Storage
+
+                // Handle File Upload for Project Expo
+                let abstractFileId = null;
+                if (selectedEvents.includes('project-expo')) {
+                    const abstractFile = formData.get('projectAbstract');
+                    if (abstractFile && abstractFile.size > 0) {
+                        try {
+                            const fileUpload = await storage.createFile(
+                                BUCKET_ID,
+                                Appwrite.ID.unique(),
+                                abstractFile
+                            );
+                            abstractFileId = fileUpload.$id;
+                        } catch (uploadError) {
+                            console.error('File upload failed:', uploadError);
+                            throw new Error('Failed to upload Abstract PDF. Please try again.');
+                        }
+                    }
+                }
+
+                const data = {
+                    name: formData.get('name'),
+                    email: formData.get('email'),
+                    phone: formData.get('phone'),
+                    college: formData.get('college'),
+                    department: formData.get('department'),
+                    year: formData.get('year'),
+                    // Store events as a JSON string as per your SQL schema
+                    events: JSON.stringify(selectedEvents), 
+                    participationType: formData.get('participationType'),
+                    teamName: formData.get('teamName') || null,
+                    teammate2: formData.get('teammate2') || null,
+                    teammate3: formData.get('teammate3') || null,
+                    projectTopic: formData.get('projectTopic') || '', // Capture topic if present
+                    projectAbstractFileId: abstractFileId, // Store the file ID from storage
+                    paymentReference: formData.get('paymentReference'),
+                    timestamp: new Date().toISOString(),
+                    verification_status: 'Pending'
+                };
+
+                await databases.createDocument(DATABASE_ID, COLLECTION_ID, Appwrite.ID.unique(), data);
+                
+                showStatus('Registration Successful! See you at WINGS 2026.', 'success');
+                e.target.reset();
+                updateEventCount(); // Reset counter
+                
+                // Scroll to top smoothly
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+            } catch (error) {
+                console.error('Registration failed:', error);
+                showStatus('Registration failed: ' + error.message, 'error');
+            } finally {
+                // Reset button state
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+
+        // Status message helper
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('formStatus');
+            if (statusDiv) {
+                statusDiv.textContent = message;
+                statusDiv.className = `form-status ${type}`;
+                statusDiv.style.display = 'block';
+                
+                // Auto hide after 5 seconds
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            } else {
+                // Fallback to alert if status div doesn't exist
+                alert(message);
+            }
+        }
+
+        // Copy to clipboard function
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('UPI ID copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+
+        // Add form submit event listener
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('registrationForm');
+            if (form) {
+                form.addEventListener('submit', handleRegistration);
+            }
+        });
+    </script>
 </body>
 </html>

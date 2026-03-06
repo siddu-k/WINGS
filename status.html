@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Status - WINGS 2026</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=Inter:wght@400..700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .status-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 20px 60px;
+            width: 100%;
+        }
+        .form-card {
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+        }
+        .status-result-card {
+            margin-top: 30px;
+            text-align: left;
+            display: none; /* Hidden by default */
+        }
+        .status-result-card h4 {
+            color: var(--gold);
+            margin-bottom: 20px;
+        }
+        .registration-item {
+            padding: 15px;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            background: rgba(0,0,0,0.2);
+        }
+        .registration-item p {
+            margin: 0 0 8px 0;
+            line-height: 1.5;
+        }
+        .registration-item p strong {
+            color: var(--gold);
+            min-width: 80px;
+            display: inline-block;
+        }
+        .nav-logo {
+            opacity: 1 !important;
+            animation: none !important;
+        }
+        /* Ticket Styles for Generation */
+        .ticket-hidden-container {
+            position: fixed;
+            left: -9999px;
+            top: 0;
+        }
+        .wings-ticket {
+            width: 800px;
+            height: 350px;
+            background: linear-gradient(135deg, #09101a 0%, #1a2a44 100%);
+            border: 2px solid var(--gold);
+            border-radius: 15px;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+            color: white;
+            font-family: var(--font-ui);
+        }
+        .wings-ticket::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: url('PYDAH FLAG  (1).png');
+            background-size: 300px;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0.05;
+            pointer-events: none;
+        }
+        .ticket-left {
+            width: 30%;
+            background: rgba(0,0,0,0.2);
+            border-right: 2px dashed rgba(242, 201, 76, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+        .ticket-right {
+            width: 70%;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="glass-nav">
+        <div class="logo">
+            <a href="index.html">
+                <img src="PYDAH FLAG  (1).png" alt="Pydah Logo" style="height: 80px;" class="nav-logo">
+            </a>
+        </div>
+        <ul class="nav-links nav-links-compact">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="events.html">Events</a></li>
+            <li><a href="register.html">Register</a></li>
+        </ul>
+    </nav>
+
+    <div class="status-container">
+        <div class="glass-card form-card">
+            <h2 class="events-title" style="margin-bottom: 20px;">Check Registration Status</h2>
+            <form id="statusForm" onsubmit="checkStatus(event)">
+                <input type="email" id="status-email" class="form-input" placeholder="Enter your email address" required>
+                <button type="submit" class="btn btn-blue glow-button" style="width: 100%; border: none; margin-top: 10px;">Check Status</button>
+            </form>
+        </div>
+
+        <div id="statusResult" class="glass-card form-card status-result-card">
+            <h4 id="resultTitle">Your Registrations:</h4>
+            <div id="resultContent"></div>
+        </div>
+    </div>
+
+    <!-- Container for rendering tickets -->
+    <div id="ticketContainer" class="ticket-hidden-container"></div>
+
+    <footer class="main-footer" style="margin-top: auto;">
+        <div class="footer-content" style="justify-content: center;">
+            <p class="copyright">© 2026 Pydah Group. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        async function checkStatus(e) {
+            e.preventDefault();
+            const email = document.getElementById('status-email').value;
+            const resultDiv = document.getElementById('statusResult');
+            const resultContent = document.getElementById('resultContent');
+            const resultTitle = document.getElementById('resultTitle');
+            const ticketContainer = document.getElementById('ticketContainer');
+
+            resultContent.innerHTML = '<p>Loading...</p>';
+            resultDiv.style.display = 'block';
+
+            const client = new Appwrite.Client();
+            client
+                .setEndpoint('https://sgp.cloud.appwrite.io/v1')
+                .setProject('69aace7f002dc7981fc6');
+            
+            const databases = new Appwrite.Databases(client);
+            
+            // REPLACE WITH YOUR DATABASE AND COLLECTION IDs
+            const DATABASE_ID = '69aacf420003152c50f2';
+            const COLLECTION_ID = '69aae492003d1d3dfdba';
+
+            try {
+                const response = await databases.listDocuments(
+                    DATABASE_ID,
+                    COLLECTION_ID,
+                    [Appwrite.Query.equal('email', [email])]
+                );
+
+                if (response.documents.length > 0) {
+                    resultTitle.textContent = `Found ${response.documents.length} registration(s) for: ${email}`;
+                    ticketContainer.innerHTML = ''; // Clear previous tickets
+                    let allTicketsHtml = '';
+                    resultContent.innerHTML = response.documents.map(doc => {
+                        // Parse events JSON string for display
+                        let eventsDisplay = doc.events;
+                        try {
+                            const parsed = JSON.parse(doc.events);
+                            if (Array.isArray(parsed)) eventsDisplay = parsed.map(e => e.replace(/-/g, ' ').toUpperCase()).join(', ');
+                        } catch (e) { /* Use raw string if parse fails */ }
+
+                        // Create Ticket HTML
+                        const ticketHtml = `
+                            <div id="ticket-${doc.$id}" class="wings-ticket">
+                                <div class="ticket-left">
+                                    <img src="PYDAH FLAG  (1).png" style="height: 80px; margin-bottom: 15px;">
+                                    <h2 style="font-family: 'Cinzel', serif; color: #f2c94c; margin: 0; font-size: 2rem; line-height: 1;">WINGS</h2>
+                                    <h3 style="font-family: 'Cinzel', serif; color: white; margin: 5px 0 0; font-size: 1.2rem;">2026</h3>
+                                    <div style="margin-top: 20px; padding: 5px 15px; border: 1px solid rgba(255,255,255,0.3); border-radius: 4px; font-size: 0.8rem; letter-spacing: 1px;">ADMIT CARD</div>
+                                </div>
+                                <div class="ticket-right">
+                                    <div id="qr-${doc.$id}" style="position: absolute; top: 20px; right: 20px; background: white; padding: 5px; border-radius: 4px;">
+                                        <!-- QR Code -->
+                                    </div>
+                                    <div>
+                                        <div style="margin-bottom: 15px;">
+                                            <span style="color: #f2c94c; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 4px;">Participant Name</span>
+                                            <h3 style="margin: 0; font-size: 1.8rem; font-weight: 700;">${doc.name}</h3>
+                                        </div>
+                                        <div style="margin-bottom: 15px;">
+                                            <span style="color: #f2c94c; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 4px;">College</span>
+                                            <p style="margin: 0; font-size: 1.1rem;">${doc.college}</p>
+                                        </div>
+                                        <div>
+                                            <span style="color: #f2c94c; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 4px;">Registered Events</span>
+                                            <p style="margin: 0; font-size: 1rem; color: #ddd;">${eventsDisplay}</p>
+                                        </div>
+                                    </div>
+                                    <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+                                        <span style="font-size: 0.8rem; color: #aaa;">ID: <span style="font-family: monospace; color: white;">${doc.$id}</span></span>
+                                        <span style="font-size: 0.8rem; color: #aaa;">Status: <span style="color: ${doc.verification_status === 'Verified' ? '#4ade80' : '#facc15'};">${doc.verification_status}</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        allTicketsHtml += ticketHtml;
+
+                        return `
+                        <div class="registration-item">
+                            <p><strong>Events:</strong> ${eventsDisplay}</p>
+                            <p><strong>Type:</strong> ${doc.participationType}</p>
+                            <p><strong>Status:</strong> ${doc.verification_status}</p>
+                            ${doc.teamName ? `<p><strong>Team:</strong> ${doc.teamName}</p>` : ''}
+                            <button onclick="downloadTicket('${doc.$id}')" class="btn btn-orange glow-button" style="margin-top: 15px; font-size: 0.85rem; padding: 8px 20px; width: auto; display: inline-block;">
+                                <i class="fa-solid fa-download" style="margin-right: 8px;"></i> Download Ticket
+                            </button>
+                        </div>
+                    `}).join('');
+
+                    ticketContainer.innerHTML = allTicketsHtml;
+
+                    // Generate QR codes
+                    response.documents.forEach(doc => {
+                        const qrContainer = document.getElementById(`qr-${doc.$id}`);
+                        if (qrContainer) {
+                            new QRCode(qrContainer, {
+                                text: doc.$id,
+                                width: 80,
+                                height: 80
+                            });
+                        }
+                    });
+                } else {
+                    resultTitle.textContent = 'No Registrations Found';
+                    resultContent.innerHTML = `<p>We couldn't find any registrations associated with that email address.</p>`;
+                }
+            } catch (error) {
+                console.error('Status check failed:', error);
+                resultTitle.textContent = 'Error';
+                resultContent.innerHTML = `<p>Something went wrong. Please try again later.</p>`;
+            }
+        }
+
+        function downloadTicket(id) {
+            const ticketElement = document.getElementById(`ticket-${id}`);
+            if (!ticketElement) return;
+
+            html2canvas(ticketElement, {
+                backgroundColor: null,
+                scale: 2 // Higher quality
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `WINGS2026_Ticket_${id}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+    </script>
+</body>
+</html>

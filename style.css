@@ -1213,3 +1213,331 @@ nav {
         width: 100%;
     }
 }
+
+/* --- ABOUT SECTION --- */
+.about-section {
+    width: 90%;
+    max-width: 1000px;
+    margin: 40px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+}
+
+.about-card {
+    width: 100% !important;
+    max-width: none;
+    padding: 40px;
+}
+
+.about-text {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 15px;
+}
+
+.about-text:last-child {
+    margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+    .about-card {
+        padding: 25px;
+    }
+}
+
+/* --- FORMS & REGISTRATION --- */
+.form-container {
+    width: 100%;
+    max-width: 100%;
+}
+
+.reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal-on-scroll.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 10px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    color: var(--gold);
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    font-family: var(--font-ui);
+    letter-spacing: 0.5px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.05);
+    color: white;
+    font-family: var(--font-ui);
+    outline: none;
+    transition: border-color 0.3s, background 0.3s;
+}
+
+.form-input:focus {
+    border-color: var(--gold);
+    background: rgba(255,255,255,0.1);
+}
+
+select.form-input option {
+    background-color: var(--dark-bg);
+    color: white;
+}
+
+/* Mobile Accordions */
+.mobile-accordion {
+    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    overflow: hidden;
+}
+
+.mobile-accordion summary {
+    padding: 15px;
+    cursor: pointer;
+    font-family: var(--font-heading);
+    color: var(--gold);
+    font-weight: 600;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.2);
+    transition: background 0.3s;
+}
+
+.mobile-accordion summary:hover {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.mobile-accordion summary::-webkit-details-marker { display: none; }
+
+.accordion-content {
+    padding: 20px;
+}
+
+/* Event Categories */
+.event-category {
+    margin-bottom: 15px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
+
+.event-category summary {
+    padding: 12px 15px;
+    cursor: pointer;
+    font-family: var(--font-ui);
+    color: var(--light-blue);
+    font-weight: 600;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.1);
+    transition: background 0.3s;
+}
+
+.event-category summary:hover {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.event-category summary::-webkit-details-marker { display: none; }
+
+.event-category-title i {
+    font-size: 0.9rem;
+}
+
+/* Event Selection Cards */
+.event-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.event-option-wrap {
+    position: relative;
+}
+
+.event-option {
+    cursor: pointer;
+    display: block;
+    position: relative;
+}
+
+.event-option input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.event-option span {
+    display: block;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 6px;
+    transition: all 0.3s;
+    height: 100%;
+}
+
+.event-option input:checked + span {
+    background: rgba(242, 201, 76, 0.15);
+    border-color: var(--gold);
+    box-shadow: 0 0 15px rgba(242, 201, 76, 0.15);
+}
+
+.event-option strong {
+    display: block;
+    color: var(--light-blue);
+    margin-bottom: 6px;
+    font-size: 1rem;
+}
+
+.event-option input:checked + span strong {
+    color: var(--gold);
+}
+
+.event-option small {
+    color: #ccc;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    display: block;
+}
+
+/* Payment Section */
+.payment-qr-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: fit-content;
+    margin: 0 auto 20px;
+}
+
+.payment-amount {
+    color: #000;
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+}
+
+.payment-note {
+    color: #555;
+    font-size: 0.8rem;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.payment-qr {
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.payment-qr canvas {
+    display: block;
+}
+
+/* Submit Button */
+.submit-btn {
+    width: 100%;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, var(--primary-orange), #b56808);
+    border: 1px solid var(--gold);
+    color: white;
+    font-family: var(--font-ui);
+    font-weight: 600;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(214, 121, 10, 0.3);
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(214, 121, 10, 0.4);
+    background: linear-gradient(135deg, #e68a0d, var(--primary-orange));
+}
+
+.form-status {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 0.9rem;
+    display: none;
+}
+
+.form-status.success {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #22c55e;
+}
+
+.form-status.error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+}
+
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .event-list {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* --- FORMS --- */
+.form-input {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.05);
+    color: white;
+    font-family: var(--font-ui);
+    outline: none;
+    transition: border-color 0.3s;
+}
+.form-input:focus {
+    border-color: var(--gold);
+    background: rgba(255,255,255,0.1);
+}
