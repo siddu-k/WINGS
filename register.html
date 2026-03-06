@@ -95,6 +95,35 @@
                 gap: 20px;
             }
         }
+        /* Success Modal */
+        .success-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .success-content {
+            background: var(--dark-bg);
+            border: 1px solid var(--gold);
+            box-shadow: 0 0 30px rgba(242, 201, 76, 0.2);
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
     </style>
 </head>
 
@@ -351,6 +380,19 @@
                         </ul>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="success-modal">
+        <div class="success-content">
+            <i class="fa-solid fa-circle-check" style="font-size: 4rem; color: #4ade80; margin-bottom: 20px;"></i>
+            <h3 style="color: white; margin-bottom: 10px; font-family: var(--font-heading);">Registration Successful!</h3>
+            <p style="color: #ccc; margin-bottom: 25px; line-height: 1.5;">Your registration has been received. Please check your status for verification updates.</p>
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <a href="status.html" class="btn btn-blue glow-button">Check Verification Status</a>
+                <button onclick="closeSuccessModal()" class="btn btn-orange glow-button">Close</button>
             </div>
         </div>
     </div>
@@ -621,7 +663,7 @@
 
                 // Check if at least one succeeded
                 if (appwriteResult.status === 'fulfilled' || supabaseResult.status === 'fulfilled') {
-                    showStatus('Registration Successful! See you at WINGS 2026.', 'success');
+                    showSuccessModal();
                     e.target.reset();
                     updateEventCount(); // Reset counter
                     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -664,6 +706,14 @@
                 // Fallback to alert if status div doesn't exist
                 alert(message);
             }
+        }
+
+        function showSuccessModal() {
+            document.getElementById('successModal').style.display = 'flex';
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').style.display = 'none';
         }
 
         // Copy to clipboard function

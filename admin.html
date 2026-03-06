@@ -353,7 +353,8 @@
         async function updateStatus(docId) {
             const select = document.getElementById(`status-${docId}`);
             const newStatus = select.value;
-            const btn = select.parentElement.nextElementSibling.querySelector('button');
+            // Navigate past 'Attended' column to get to 'Actions' column
+            const btn = select.parentElement.nextElementSibling.nextElementSibling.querySelector('button');
             
             const originalText = btn.textContent;
             btn.textContent = '...';
