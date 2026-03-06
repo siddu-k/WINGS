@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=Inter:wght@400..700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
             min-height: 100vh;
@@ -95,6 +96,46 @@
             text-transform: uppercase;
             letter-spacing: 1px;
         }
+        /* Toggle Switch Styles */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #f02e65; /* Appwrite Color */
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #3ecf8e; /* Supabase Green */
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
     </style>
 </head>
 <body>
@@ -136,6 +177,14 @@
         <div class="glass-card dashboard-card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
                 <h3 style="color: white; margin: 0;">Registration List</h3>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="color: #aaa; font-size: 0.8rem;">Source:</span>
+                    <label class="switch">
+                        <input type="checkbox" id="sourceToggle" onchange="toggleSource()">
+                        <span class="slider round"></span>
+                    </label>
+                    <span id="sourceLabel" style="color: #f02e65; font-weight: bold; font-size: 0.9rem;">Appwrite</span>
+                </div>
                 <div style="display: flex; gap: 10px; align-items: center;">
                     <input type="text" id="searchInput" placeholder="Search..." onkeyup="filterTable()" style="padding: 8px 12px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: white; font-family: var(--font-ui); outline: none;">
                     <button onclick="downloadCSV()" class="btn btn-orange glow-button" style="margin-bottom: 0; padding: 8px 15px; font-size: 0.85rem;">Export CSV</button>
@@ -172,30 +221,60 @@
         const DATABASE_ID = '69aacf420003152c50f2';
         const COLLECTION_ID = '69aae492003d1d3dfdba';
 
+        // Supabase Config
+        const SUPABASE_URL = 'https://miflxuibznwljdqddvso.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pZmx4dWliem53bGpkcWRkdnNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MTM2MzYsImV4cCI6MjA4ODM4OTYzNn0._iK-yrsoTgmI_T0I8M5wzFx-oDOkDAFoZh1b9h6_K8g';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let currentSource = 'Appwrite';
         let allRegistrations = [];
+
+        function toggleSource() {
+            const toggle = document.getElementById('sourceToggle');
+            const label = document.getElementById('sourceLabel');
+            
+            if (toggle.checked) {
+                currentSource = 'Supabase';
+                label.textContent = 'Supabase';
+                label.style.color = '#3ecf8e';
+            } else {
+                currentSource = 'Appwrite';
+                label.textContent = 'Appwrite';
+                label.style.color = '#f02e65';
+            }
+            fetchRegistrations();
+        }
 
         async function fetchRegistrations() {
             const tableBody = document.getElementById('tableBody');
-            tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Loading...</td></tr>';
+            tableBody.innerHTML = `<tr><td colspan="8" style="text-align: center;">Loading from ${currentSource}...</td></tr>`;
 
             try {
-                // Fetch all documents (limit 100 for now, pagination can be added later)
-                const response = await databases.listDocuments(
-                    DATABASE_ID,
-                    COLLECTION_ID,
-                    [
-                        Appwrite.Query.limit(100),
-                        Appwrite.Query.orderDesc('timestamp')
-                    ]
-                );
+                let docs = [];
+                if (currentSource === 'Appwrite') {
+                    const response = await databases.listDocuments(
+                        DATABASE_ID,
+                        COLLECTION_ID,
+                        [Appwrite.Query.limit(100), Appwrite.Query.orderDesc('timestamp')]
+                    );
+                    docs = response.documents;
+                } else {
+                    const { data, error } = await supabaseClient
+                        .from('registrations')
+                        .select('*')
+                        .order('timestamp', { ascending: false })
+                        .limit(100);
+                    if (error) throw error;
+                    docs = data.map(d => ({ ...d, $id: d.id })); // Map ID for compatibility
+                }
 
-                allRegistrations = response.documents;
-                updateStats(response.documents);
-                renderTable(response.documents);
+                allRegistrations = docs;
+                updateStats(docs);
+                renderTable(docs);
 
             } catch (error) {
                 console.error(error);
-                tableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #ef4444;">Error fetching data: ${error.message}</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #ef4444;">Error fetching data from ${currentSource}: ${error.message}</td></tr>`;
             }
         }
 
@@ -259,9 +338,17 @@
             btn.disabled = true;
 
             try {
-                await databases.updateDocument(DATABASE_ID, COLLECTION_ID, docId, {
-                    verification_status: newStatus
-                });
+                if (currentSource === 'Appwrite') {
+                    await databases.updateDocument(DATABASE_ID, COLLECTION_ID, docId, {
+                        verification_status: newStatus
+                    });
+                } else {
+                    const { error } = await supabaseClient
+                        .from('registrations')
+                        .update({ verification_status: newStatus })
+                        .eq('id', docId);
+                    if (error) throw error;
+                }
                 
                 // Visual feedback
                 select.style.borderColor = newStatus === 'Verified' ? '#4ade80' : (newStatus === 'Rejected' ? '#ef4444' : '#facc15');
