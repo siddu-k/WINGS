@@ -136,6 +136,39 @@
         input:checked + .slider:before {
             transform: translateX(26px);
         }
+        /* Login Overlay */
+        #loginOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #09101a; /* var(--dark-bg) fallback */
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .login-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            backdrop-filter: blur(10px);
+        }
+        .login-input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -151,6 +184,16 @@
             <li><a href="status.html">Status</a></li>
         </ul>
     </nav>
+
+    <div id="loginOverlay">
+        <div class="login-card">
+            <h2 style="color: var(--gold); margin-bottom: 20px; font-family: var(--font-heading);">Admin Login</h2>
+            <input type="text" id="adminUser" class="login-input" placeholder="Username">
+            <input type="password" id="adminPass" class="login-input" placeholder="Password">
+            <button onclick="checkLogin()" class="btn btn-orange glow-button" style="width: 100%;">Login</button>
+            <p id="loginError" style="color: #ef4444; margin-top: 10px; display: none;">Invalid credentials</p>
+        </div>
+    </div>
 
     <div class="admin-container">
         <h2 class="events-title" style="color: var(--gold); margin-bottom: 30px;">Admin Dashboard</h2>
@@ -231,6 +274,17 @@
 
         let currentSource = 'Appwrite';
         let allRegistrations = [];
+
+        function checkLogin() {
+            const user = document.getElementById('adminUser').value;
+            const pass = document.getElementById('adminPass').value;
+            if (user === 'pydah' && pass === 'wings2k26') {
+                document.getElementById('loginOverlay').style.display = 'none';
+                fetchRegistrations();
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+            }
+        }
 
         function toggleSource() {
             const toggle = document.getElementById('sourceToggle');
@@ -447,7 +501,6 @@
             document.body.removeChild(a);
         }
 
-        document.addEventListener('DOMContentLoaded', fetchRegistrations);
     </script>
 </body>
 </html>
