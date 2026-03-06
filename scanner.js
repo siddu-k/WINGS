@@ -5,15 +5,17 @@ const databases = new Appwrite.Databases(client);
 const DATABASE_ID = '69aacf420003152c50f2';
 const COLLECTION_ID = '69aae492003d1d3dfdba';
 
-let html5QrcodeScanner;
+let html5QrCode;
 let currentDocId = null;
 
 function onScanSuccess(decodedText, decodedResult) {
     // Stop scanning temporarily to show results
-    html5QrcodeScanner.clear();
-    
-    // Fetch details from Appwrite
-    fetchDetails(decodedText);
+    if (html5QrCode) {
+        html5QrCode.stop().then(() => {
+            html5QrCode.clear();
+            fetchDetails(decodedText);
+        }).catch(err => console.error("Failed to stop scanner", err));
+    }
 }
 
 function onScanFailure(error) {
@@ -93,18 +95,24 @@ function resetScanner() {
 
 function startScanner() {
     const scannerMessage = document.getElementById('scannerMessage');
-    if (location.protocol !== 'https:') {
+    if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
         scannerMessage.innerText = 'CAMERA ERROR: This app must be run on a secure server (HTTPS) to access the camera.';
         scannerMessage.style.display = 'block';
         scannerMessage.style.color = '#ef4444';
         return;
     }
 
-    html5QrcodeScanner = new Html5QrcodeScanner(
-        "reader",
+    html5QrCode = new Html5Qrcode("reader");
+    html5QrCode.start(
+        { facingMode: "environment" }, 
         { fps: 10, qrbox: {width: 250, height: 250} },
-        /* verbose= */ false);
-    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+        onScanSuccess,
+        onScanFailure
+    ).catch(err => {
+        console.error("Error starting scanner", err);
+        scannerMessage.innerText = `Camera Error: ${err}`;
+        scannerMessage.style.display = 'block';
+    });
 }
 
 document.addEventListener('DOMContentLoaded', startScanner);
